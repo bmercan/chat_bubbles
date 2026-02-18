@@ -12,33 +12,47 @@ import 'package:flutter/material.dart';
 class BubbleSpecialThree extends StatelessWidget {
   /// message sender
   final bool isSender;
+
   /// message text
-  final String text;
+  final String? text;
+
   /// chat bubble tail
   final bool tail;
+
   /// chat bubble color
   final Color color;
+
   /// message state - whether the message has been sent
   final bool sent;
+
   /// message state - whether the message has been delivered
   final bool delivered;
+
   /// message state - whether the message has been seen
   final bool seen;
+
   /// text style for the message
   final TextStyle textStyle;
+
   /// constraints for the chat bubble
   final BoxConstraints? constraints;
+
+  final bool isTopFlat;
+
+  final Widget? child;
 
   /// Creates a [BubbleSpecialThree] widget
   const BubbleSpecialThree({
     Key? key,
     this.isSender = true,
     this.constraints,
-    required this.text,
+    this.text,
     this.color = Colors.white70,
     this.tail = true,
     this.sent = false,
     this.delivered = false,
+    this.isTopFlat = false,
+    this.child,
     this.seen = false,
     this.textStyle = const TextStyle(
       color: Colors.black87,
@@ -82,6 +96,7 @@ class BubbleSpecialThree extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: CustomPaint(
           painter: _SpecialChatBubbleThree(
+              isTopFlat: isTopFlat,
               color: color,
               alignment: isSender ? Alignment.topRight : Alignment.topLeft,
               tail: tail),
@@ -97,16 +112,17 @@ class BubbleSpecialThree extends StatelessWidget {
                 : const EdgeInsets.fromLTRB(17, 7, 7, 7),
             child: Stack(
               children: <Widget>[
-                Padding(
-                  padding: stateTick
-                      ? const EdgeInsets.only(left: 4, right: 20)
-                      : const EdgeInsets.only(left: 4, right: 4),
-                  child: Text(
-                    text,
-                    style: textStyle,
-                    textAlign: TextAlign.left,
-                  ),
-                ),
+                child ??
+                    Padding(
+                      padding: stateTick
+                          ? const EdgeInsets.only(left: 4, right: 20)
+                          : const EdgeInsets.only(left: 4, right: 4),
+                      child: Text(
+                        text ?? '',
+                        style: textStyle,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
                 stateIcon != null && stateTick
                     ? Positioned(
                         bottom: 0,
@@ -133,8 +149,10 @@ class _SpecialChatBubbleThree extends CustomPainter {
   final Color color;
   final Alignment alignment;
   final bool tail;
+  final bool isTopFlat;
 
   _SpecialChatBubbleThree({
+    required this.isTopFlat,
     required this.color,
     required this.alignment,
     required this.tail,
@@ -150,14 +168,14 @@ class _SpecialChatBubbleThree extends CustomPainter {
       if (tail) {
         var path = Path();
 
-        /// starting point
-        path.moveTo(_radius * 2, 0);
-
-        /// top-left corner
-        path.quadraticBezierTo(0, 0, 0, _radius * 1.5);
-
-        /// left line
-        path.lineTo(0, h - _radius * 1.5);
+        if (isTopFlat) {
+          path.moveTo(0, 0);
+          path.lineTo(0, h - _radius * 1.5);
+        } else {
+          path.moveTo(_radius * 2, 0);
+          path.quadraticBezierTo(0, 0, 0, _radius * 1.5);
+          path.lineTo(0, h - _radius * 1.5);
+        }
 
         /// bottom-left corner
         path.quadraticBezierTo(0, h, _radius * 2, h);
@@ -179,8 +197,13 @@ class _SpecialChatBubbleThree extends CustomPainter {
         /// right line
         path.lineTo(w - _radius, _radius * 1.5);
 
-        /// top-right curve
-        path.quadraticBezierTo(w - _radius, 0, w - _radius * 3, 0);
+        if (isTopFlat) {
+          path.lineTo(w - _radius, 0);
+          path.lineTo(w, 0);
+          path.lineTo(w - _radius * 3, 0);
+        } else {
+          path.quadraticBezierTo(w - _radius, 0, w - _radius * 3, 0);
+        }
 
         canvas.clipPath(path);
         canvas.drawRRect(
@@ -191,14 +214,14 @@ class _SpecialChatBubbleThree extends CustomPainter {
       } else {
         var path = Path();
 
-        /// starting point
-        path.moveTo(_radius * 2, 0);
-
-        /// top-left corner
-        path.quadraticBezierTo(0, 0, 0, _radius * 1.5);
-
-        /// left line
-        path.lineTo(0, h - _radius * 1.5);
+        if (isTopFlat) {
+          path.moveTo(0, 0);
+          path.lineTo(0, h - _radius * 1.5);
+        } else {
+          path.moveTo(_radius * 2, 0);
+          path.quadraticBezierTo(0, 0, 0, _radius * 1.5);
+          path.lineTo(0, h - _radius * 1.5);
+        }
 
         /// bottom-left corner
         path.quadraticBezierTo(0, h, _radius * 2, h);
@@ -212,8 +235,13 @@ class _SpecialChatBubbleThree extends CustomPainter {
         /// right line
         path.lineTo(w - _radius, _radius * 1.5);
 
-        /// top-right curve
-        path.quadraticBezierTo(w - _radius, 0, w - _radius * 3, 0);
+        if (isTopFlat) {
+          path.lineTo(w - _radius, 0);
+          path.lineTo(w, 0);
+          path.lineTo(w - _radius * 3, 0);
+        } else {
+          path.quadraticBezierTo(w - _radius, 0, w - _radius * 3, 0);
+        }
 
         canvas.clipPath(path);
         canvas.drawRRect(
@@ -226,13 +254,14 @@ class _SpecialChatBubbleThree extends CustomPainter {
       if (tail) {
         var path = Path();
 
-        /// starting point
-        path.moveTo(_radius * 3, 0);
-
-        /// top-left corner
-        path.quadraticBezierTo(_radius, 0, _radius, _radius * 1.5);
-
-        /// left line
+        if (isTopFlat) {
+          path.moveTo(0, 0);
+          path.lineTo(_radius, 0);
+          path.lineTo(_radius, _radius * 1.5);
+        } else {
+          path.moveTo(_radius * 3, 0);
+          path.quadraticBezierTo(_radius, 0, _radius, _radius * 1.5);
+        }
         path.lineTo(_radius, h - _radius * 1.5);
         // bottom-right tail curve 1
         path.quadraticBezierTo(_radius * .8, h, 0, h);
@@ -253,8 +282,12 @@ class _SpecialChatBubbleThree extends CustomPainter {
         /// right line
         path.lineTo(w, _radius * 1.5);
 
-        /// top-right curve
-        path.quadraticBezierTo(w, 0, w - _radius * 2, 0);
+        if (isTopFlat) {
+          path.lineTo(w, 0);
+          path.lineTo(w - _radius * 2, 0);
+        } else {
+          path.quadraticBezierTo(w, 0, w - _radius * 2, 0);
+        }
         canvas.clipPath(path);
         canvas.drawRRect(
             RRect.fromLTRBR(0, 0, w, h, Radius.zero),
@@ -264,13 +297,14 @@ class _SpecialChatBubbleThree extends CustomPainter {
       } else {
         var path = Path();
 
-        /// starting point
-        path.moveTo(_radius * 3, 0);
-
-        /// top-left corner
-        path.quadraticBezierTo(_radius, 0, _radius, _radius * 1.5);
-
-        /// left line
+        if (isTopFlat) {
+          path.moveTo(0, 0);
+          path.lineTo(_radius, 0);
+          path.lineTo(_radius, _radius * 1.5);
+        } else {
+          path.moveTo(_radius * 3, 0);
+          path.quadraticBezierTo(_radius, 0, _radius, _radius * 1.5);
+        }
         path.lineTo(_radius, h - _radius * 1.5);
 
         /// bottom-left curve
@@ -285,8 +319,12 @@ class _SpecialChatBubbleThree extends CustomPainter {
         /// right line
         path.lineTo(w, _radius * 1.5);
 
-        /// top-right curve
-        path.quadraticBezierTo(w, 0, w - _radius * 2, 0);
+        if (isTopFlat) {
+          path.lineTo(w, 0);
+          path.lineTo(w - _radius * 2, 0);
+        } else {
+          path.quadraticBezierTo(w, 0, w - _radius * 2, 0);
+        }
         canvas.clipPath(path);
         canvas.drawRRect(
             RRect.fromLTRBR(0, 0, w, h, Radius.zero),
