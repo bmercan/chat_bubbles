@@ -41,6 +41,8 @@ class BubbleSpecialThree extends StatelessWidget {
 
   final Widget? child;
 
+  final EdgeInsets? padding;
+
   /// Creates a [BubbleSpecialThree] widget
   const BubbleSpecialThree({
     Key? key,
@@ -58,6 +60,7 @@ class BubbleSpecialThree extends StatelessWidget {
       color: Colors.black87,
       fontSize: 16,
     ),
+    this.padding,
   }) : super(key: key);
 
   ///chat bubble builder method
@@ -93,7 +96,8 @@ class BubbleSpecialThree extends StatelessWidget {
     return Align(
       alignment: isSender ? Alignment.topRight : Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding:
+            padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: CustomPaint(
           painter: _SpecialChatBubbleThree(
               isTopFlat: isTopFlat,
